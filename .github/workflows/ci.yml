@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # `npm ci` runs the "prepare" script, which builds the .jpl - so a broken
+      # build fails here before the tests even run.
+      - run: npm ci
+
+      - run: npm test
+
+      - name: Check the versions in package.json and src/manifest.json agree
+        run: |
+          pkg=$(node -p "require('./package.json').version")
+          man=$(node -p "require('./src/manifest.json').version")
+          test "$pkg" = "$man" || { echo "Version mismatch: package.json $pkg, manifest $man"; exit 1; }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin
+          path: publish/*.jpl

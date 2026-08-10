@@ -1,0 +1,372 @@
+/*
+ * Colours come from Joplin's theme, exposed to plugin webviews as CSS custom
+ * properties derived from the theme keys in packages/lib/themes/type.ts
+ * (camelCase becomes dash-case). Fallbacks keep the panel readable if a theme
+ * omits one of them.
+ */
+
+.jt {
+	/* Entries that bleed to the panel edge pull themselves out by this much.
+	   It must match .jt-scroll's horizontal padding: overflow-x is hidden, so a
+	   wider pull silently clips the selection's accent bar. */
+	--jt-gutter: 14px;
+
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	/* Panels fill their container rather than their content, so the entry list
+	   scrolls inside the webview instead of the host adding an outer scrollbar. */
+	height: 100vh;
+	font-family: var(--joplin-font-family, sans-serif);
+	font-size: var(--joplin-font-size, 14px);
+	color: var(--joplin-color, #32373f);
+}
+
+.jt *,
+.jt *::before,
+.jt *::after {
+	box-sizing: inherit;
+}
+
+/* Top bar */
+
+.jt-topbar {
+	display: grid;
+	flex: none;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	gap: 8px;
+	padding: 8px var(--jt-gutter);
+	border-bottom: 1px solid var(--joplin-divider-color, #dddddd);
+}
+
+.jt-topbar__lead {
+	min-width: 0;
+}
+
+.jt-topbar__folder {
+	display: block;
+	overflow: hidden;
+	font-size: 0.82em;
+	color: var(--joplin-color-faded, #7c8394);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.jt-topbar__title {
+	margin: 0;
+	font-size: 1.05em;
+	font-weight: 600;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.jt-topbar__actions {
+	display: flex;
+	gap: 2px;
+	justify-content: flex-end;
+}
+
+.jt-icon-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	font-size: 0.95em;
+	color: var(--joplin-color-faded, #7c8394);
+	cursor: pointer;
+	background: transparent;
+	border: none;
+	border-radius: 5px;
+}
+
+.jt-icon-button:hover {
+	color: var(--joplin-color, #32373f);
+	background: var(--joplin-background-color-hover3, rgba(128, 128, 128, 0.15));
+}
+
+/* Entry stream */
+
+.jt-scroll {
+	flex: 1 1 auto;
+	min-height: 0;
+	padding: 4px var(--jt-gutter) 40vh;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+/* Entries bleed to the panel edge so the hover and selection backgrounds line
+   up with each other rather than floating inside the text column. */
+.jt-entry {
+	padding: 16px var(--jt-gutter) 6px;
+	margin: 0 calc(-1 * var(--jt-gutter));
+	border-radius: 6px;
+}
+
+/* The whole entry opens its note, so it needs to read as one target. The text
+   cursor is kept: selecting a passage matters more here than a pointer would. */
+.jt-entry[data-note-id]:not(.jt-entry--selected):hover {
+	background: var(--joplin-background-color-hover3, rgba(128, 128, 128, 0.07));
+}
+
+.jt-entry__header {
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+	padding-bottom: 8px;
+	margin-bottom: 12px;
+	border-bottom: 1px solid var(--joplin-divider-color, #dddddd);
+}
+
+.jt-entry__date {
+	padding: 0;
+	font: inherit;
+	font-weight: 600;
+	color: var(--joplin-color, #32373f);
+	text-align: left;
+	cursor: pointer;
+	background: none;
+	border: none;
+}
+
+.jt-entry__date:hover {
+	color: var(--joplin-url-color, #155bda);
+}
+
+.jt-entry__date--plain {
+	cursor: default;
+}
+
+.jt-entry__badge {
+	font-size: 0.85em;
+	color: var(--joplin-color-faded, #7c8394);
+}
+
+/*
+ * Today is marked by its badge alone. It used to get a raised card, but that
+ * reads as "highlighted" and competed with the selection below - two filled
+ * blocks, neither obviously the one you are looking at.
+ */
+.jt-entry__badge--today {
+	padding: 1px 8px;
+	color: var(--joplin-url-color, #155bda);
+	border: 1px solid currentColor;
+	border-radius: 99px;
+}
+
+/* The entry open in the editor: the reader's only filled highlight. */
+.jt-entry--selected {
+	padding-right: var(--jt-gutter);
+	padding-left: calc(var(--jt-gutter) - 3px);
+	margin-right: calc(-1 * var(--jt-gutter));
+	margin-left: calc(-1 * var(--jt-gutter));
+	background: var(--joplin-raised-background-color, rgba(128, 128, 128, 0.12));
+	border-left: 3px solid var(--joplin-url-color, #155bda);
+	border-radius: 0 6px 6px 0;
+}
+
+/* The "start today's entry" card, which has no note to select yet. */
+.jt-entry--placeholder {
+	padding: 12px var(--jt-gutter) 10px;
+	margin: 16px calc(-1 * var(--jt-gutter)) 0;
+	border: 1px dashed var(--joplin-divider-color, #dddddd);
+	border-radius: 8px;
+}
+
+.jt-entry__empty {
+	margin: 0 0 4px;
+	font-size: 0.9em;
+	color: var(--joplin-color-faded, #7c8394);
+}
+
+.jt-link {
+	padding: 0;
+	font: inherit;
+	color: var(--joplin-url-color, #155bda);
+	cursor: pointer;
+	background: none;
+	border: none;
+	text-decoration: underline;
+}
+
+.jt-start {
+	display: inline-flex;
+	gap: 8px;
+	align-items: center;
+	padding: 8px 14px;
+	margin-bottom: 6px;
+	font: inherit;
+	color: var(--joplin-color, #32373f);
+	cursor: pointer;
+	background: var(--joplin-background-color, #ffffff);
+	border: 1px solid var(--joplin-divider-color, #dddddd);
+	border-radius: 6px;
+}
+
+.jt-start:hover {
+	background: var(--joplin-background-color-hover3, rgba(128, 128, 128, 0.15));
+}
+
+.jt-icon-button:focus-visible,
+.jt-entry__date:focus-visible,
+.jt-start:focus-visible,
+.jt-link:focus-visible {
+	outline: 2px solid var(--joplin-url-color, #155bda);
+	outline-offset: 2px;
+}
+
+/* Notices */
+
+.jt-notice {
+	margin: 12px 0;
+	font-size: 0.87em;
+	line-height: 1.45;
+	color: var(--joplin-color-faded, #7c8394);
+}
+
+.jt-notice--warn {
+	color: var(--joplin-color-warn, #d9822b);
+}
+
+.jt-notice--error {
+	color: var(--joplin-color-error, #ff6c6c);
+}
+
+/*
+ * Rendered note bodies. Joplin's own note styles are not reused: they are
+ * scoped to a single #rendered-md element, and several entries share this
+ * document. These rules cover what Markdown actually produces.
+ */
+
+.jt-md {
+	line-height: 1.62;
+	overflow-wrap: break-word;
+}
+
+.jt-md > :first-child {
+	margin-top: 0;
+}
+
+.jt-md > :last-child {
+	margin-bottom: 0;
+}
+
+.jt-md p,
+.jt-md ul,
+.jt-md ol,
+.jt-md blockquote,
+.jt-md pre,
+.jt-md table {
+	margin: 0 0 0.85em;
+}
+
+.jt-md h1,
+.jt-md h2,
+.jt-md h3,
+.jt-md h4,
+.jt-md h5,
+.jt-md h6 {
+	margin: 1.2em 0 0.5em;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.jt-md h1 { font-size: 1.3em; }
+.jt-md h2 { font-size: 1.18em; }
+.jt-md h3 { font-size: 1.08em; }
+.jt-md h4,
+.jt-md h5,
+.jt-md h6 { font-size: 1em; }
+
+.jt-md a {
+	color: var(--joplin-url-color, #155bda);
+}
+
+.jt-md ul,
+.jt-md ol {
+	padding-left: 1.5em;
+}
+
+.jt-md li {
+	margin: 0.2em 0;
+}
+
+.jt-md blockquote {
+	padding-left: 1em;
+	color: var(--joplin-color-faded, #7c8394);
+	border-left: 3px solid var(--joplin-divider-color, #dddddd);
+}
+
+.jt-md code {
+	padding: 0.15em 0.35em;
+	font-size: 0.9em;
+	background: var(--joplin-code-background-color, rgba(128, 128, 128, 0.15));
+	border-radius: 3px;
+}
+
+.jt-md pre {
+	padding: 10px 12px;
+	overflow-x: auto;
+	background: var(--joplin-code-background-color, rgba(128, 128, 128, 0.15));
+	border-radius: 6px;
+}
+
+.jt-md pre code {
+	padding: 0;
+	background: none;
+}
+
+/*
+ * Attachments are thumbnailed so a single photo cannot swallow a whole entry.
+ * Clicking one expands it to the width of the reader; panel.js remembers which
+ * images are expanded across re-renders.
+ */
+.jt-md img {
+	max-width: 100%;
+	max-height: 140px;
+	width: auto;
+	height: auto;
+	vertical-align: top;
+	cursor: zoom-in;
+	border-radius: 4px;
+}
+
+.jt-md img:hover {
+	outline: 1px solid var(--joplin-url-color, #155bda);
+	outline-offset: 1px;
+}
+
+.jt-md img.-expanded {
+	max-height: none;
+	cursor: zoom-out;
+}
+
+/* "Show images in entries" turned off. Hiding with CSS rather than re-rendering
+   keeps the cached note HTML valid, so toggling the setting is instant. */
+.jt--no-images .jt-md img {
+	display: none;
+}
+
+.jt-md hr {
+	height: 1px;
+	margin: 1.2em 0;
+	background: var(--joplin-divider-color, #dddddd);
+	border: none;
+}
+
+.jt-md table {
+	display: block;
+	overflow-x: auto;
+	border-collapse: collapse;
+}
+
+.jt-md th,
+.jt-md td {
+	padding: 5px 9px;
+	border: 1px solid var(--joplin-divider-color, #dddddd);
+}
+
+.jt-md input[type="checkbox"] {
+	margin-right: 0.4em;
+}
