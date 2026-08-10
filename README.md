@@ -3,6 +3,10 @@
 A [Joplin](https://joplinapp.org) plugin that shows the dated notes of a journal notebook as a
 timeline panel, and opens — or creates — today's entry in one click.
 
+<p align="center">
+  <img src="docs/journal_timeline_view.png" alt="Journal View open in Obsidian">
+</p>
+
 Any note whose **title is a calendar date** (`YYYY-MM-DD`, e.g. `2026-08-10`) is treated as a
 journal entry. Notes with other titles are ignored, so the notebook can hold indexes, templates
 and other material alongside the journal itself.
@@ -26,43 +30,43 @@ and other material alongside the journal itself.
 
 ## Installation
 
-Search for **Journal Timeline** in *Joplin → Preferences → Plugins*.
+Search for **Journal Timeline** in _Joplin → Preferences → Plugins_.
 
-To install a locally built copy instead, use *Preferences → Plugins → the gear icon → Install from
-file* and pick `publish/journal-timeline.jpl`.
+To install a locally built copy instead, use _Preferences → Plugins → the gear icon → Install from
+file_ and pick `publish/journal-timeline.jpl`.
 
 ## Usage
 
 The panel appears in the sidebar area the first time the plugin runs. Afterwards it remembers
 whether you left it open or closed.
 
-| Action | Where |
-| --- | --- |
-| Show/hide the panel | Toolbar button, *Tools → Journal Timeline → Toggle Journal Timeline*, or `Ctrl/Cmd+Alt+J` |
-| Open today's entry | The calendar button, or *Tools → Journal Timeline* |
-| Open one entry in the editor | Click anywhere in it |
-| Follow a link in an entry | Click the link — notes open in Joplin, everything else in your browser |
-| Expand or shrink an image | Click the image |
+| Action                       | Where                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------- |
+| Show/hide the panel          | Toolbar button, _Tools → Journal Timeline → Toggle Journal Timeline_, or `Ctrl/Cmd+Alt+J` |
+| Open today's entry           | The calendar button, or _Tools → Journal Timeline_                                        |
+| Open one entry in the editor | Click anywhere in it                                                                      |
+| Follow a link in an entry    | Click the link — notes open in Joplin, everything else in your browser                    |
+| Expand or shrink an image    | Click the image                                                                           |
 
-The panel is narrow by default. Drag its edge, or use *View → Change application layout*, to give
+The panel is narrow by default. Drag its edge, or use _View → Change application layout_, to give
 the reader a comfortable measure.
 
 There is no refresh button, because the reader keeps itself current: it redraws when a note is
 created, edited, retitled, moved or deleted, when a sync finishes, when its settings change, when it
 is shown after being hidden, and when the date rolls over at midnight. A **Refresh Journal Timeline**
-command exists in *Tools → Journal Timeline* and the command palette for the rare case where you
-want to force it, and a failed render offers its own *Try again*.
+command exists in _Tools → Journal Timeline_ and the command palette for the rare case where you
+want to force it, and a failed render offers its own _Try again_.
 
 ## Choosing the journal notebook
 
-*Preferences → Journal Timeline*
+_Preferences → Journal Timeline_
 
-| Setting | Default | Description |
-| --- | --- | --- |
-| Journal notebook | *(create a new one)* | Dropdown listing every notebook you have, by full path. Pick the one you already keep your journal in. |
-| Name for the new notebook | `Journals` | Used only while the dropdown is set to **+ Create a new notebook…**. Supports `/` to nest, e.g. `Journals/Personal`. |
-| Entries shown | `30` | How many of the most recent entries to render, up to 365. Each is rendered in full, so large values slow refreshes down. `0` renders every entry. |
-| Show images in entries | on | Turn off to hide attachments in the panel. The notes are not changed — images still appear in the editor and note viewer. |
+| Setting                   | Default              | Description                                                                                                                                       |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Journal notebook          | _(create a new one)_ | Dropdown listing every notebook you have, by full path. Pick the one you already keep your journal in.                                            |
+| Name for the new notebook | `Journals`           | Used only while the dropdown is set to **+ Create a new notebook…**. Supports `/` to nest, e.g. `Journals/Personal`.                              |
+| Entries shown             | `30`                 | How many of the most recent entries to render, up to 365. Each is rendered in full, so large values slow refreshes down. `0` renders every entry. |
+| Show images in entries    | on                   | Turn off to hide attachments in the panel. The notes are not changed — images still appear in the editor and note viewer.                         |
 
 If you already have a notebook called `Journals`, the plugin adopts it on first run rather than
 offering to create a second one — so an existing hand-made journal works with no setup.
@@ -90,20 +94,20 @@ The tests cover the pure parts — date handling, panel markup and escaping, set
 Joplin API is stubbed by `test/mocks/`, so anything reaching for it throws: that layer is verified
 by running the plugin, not by mocking the whole app.
 
-To try a change in Joplin, point *Preferences → Plugins → Advanced settings → Development plugins*
+To try a change in Joplin, point _Preferences → Plugins → Advanced settings → Development plugins_
 at this directory; Joplin then loads `dist/` directly and reloads it on restart.
 
-| Path | Role |
-| --- | --- |
-| `src/index.ts` | Entry point: registers settings, commands, menus, toolbar button and workspace listeners |
-| `src/panel.ts` | Panel lifecycle — rendering, message handling, refresh scheduling |
-| `src/panelHtml.ts` | Panel markup, with HTML escaping of all note and notebook titles |
-| `src/render.ts` | Note bodies to HTML via Joplin's `renderMarkup` command, cached per revision |
-| `src/settings.ts` | Setting definitions, and the notebook dropdown that is rebuilt as notebooks change |
-| `src/journal.ts` | Data-API access: notebook lookup/creation, paginated note listing |
-| `src/dates.ts` | Journal-title parsing and formatting, in local time |
-| `src/webview/` | Panel-side script and stylesheet, copied verbatim into the bundle |
-| `api/` | Joplin plugin API type definitions, refreshed by `npm run update` |
+| Path               | Role                                                                                     |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| `src/index.ts`     | Entry point: registers settings, commands, menus, toolbar button and workspace listeners |
+| `src/panel.ts`     | Panel lifecycle — rendering, message handling, refresh scheduling                        |
+| `src/panelHtml.ts` | Panel markup, with HTML escaping of all note and notebook titles                         |
+| `src/render.ts`    | Note bodies to HTML via Joplin's `renderMarkup` command, cached per revision             |
+| `src/settings.ts`  | Setting definitions, and the notebook dropdown that is rebuilt as notebooks change       |
+| `src/journal.ts`   | Data-API access: notebook lookup/creation, paginated note listing                        |
+| `src/dates.ts`     | Journal-title parsing and formatting, in local time                                      |
+| `src/webview/`     | Panel-side script and stylesheet, copied verbatim into the bundle                        |
+| `api/`             | Joplin plugin API type definitions, refreshed by `npm run update`                        |
 
 Two details of the Joplin webview are worth knowing before changing the panel:
 
