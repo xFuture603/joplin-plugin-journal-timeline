@@ -1,0 +1,29 @@
+{
+	"branches": ["main"],
+	"plugins": [
+		"@semantic-release/commit-analyzer",
+		"@semantic-release/release-notes-generator",
+		[
+			"@semantic-release/changelog",
+			{
+				"changelogFile": "CHANGELOG.md",
+				"changelogTitle": "# Changelog"
+			}
+		],
+		"@semantic-release/npm",
+		[
+			"@semantic-release/exec",
+			{
+				"prepareCmd": "node scripts/set-version.js ${nextRelease.version}"
+			}
+		],
+		[
+			"@semantic-release/git",
+			{
+				"assets": ["package.json", "package-lock.json", "src/manifest.json", "CHANGELOG.md"],
+				"message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+			}
+		],
+		"@semantic-release/github"
+	]
+}

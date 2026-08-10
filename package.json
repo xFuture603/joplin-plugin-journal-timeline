@@ -6,10 +6,15 @@
     "dist": "webpack --env joplin-plugin-config=buildMain && webpack --env joplin-plugin-config=buildExtraScripts && webpack --env joplin-plugin-config=createArchive",
     "prepare": "npm run dist",
     "test": "jest",
-    "updateVersion": "webpack --env joplin-plugin-config=updateVersion",
     "update": "npm install -g generator-joplin && yo joplin --node-package-manager npm --update --force"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xfuture603/joplin-plugin-journal-timeline.git"
+  },
+  "homepage": "https://github.com/xfuture603/joplin-plugin-journal-timeline#readme",
+  "bugs": "https://github.com/xfuture603/joplin-plugin-journal-timeline/issues",
   "keywords": [
     "joplin-plugin"
   ],
@@ -17,6 +22,9 @@
     "publish"
   ],
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/git": "^10.0.1",
     "@types/jest": "^29.5.14",
     "@types/node": "^18.7.13",
     "chalk": "^4.1.0",
@@ -24,6 +32,7 @@
     "fs-extra": "^10.1.0",
     "glob": "^8.0.3",
     "jest": "^29.7.0",
+    "semantic-release": "^24.2.9",
     "tar": "^6.1.11",
     "ts-jest": "^29.4.12",
     "ts-loader": "^9.3.1",

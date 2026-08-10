@@ -1,8 +1,8 @@
 name: CI
 
+# Pull requests only: pushes to main are covered by the release workflow, which
+# builds and tests before it publishes anything.
 on:
-  push:
-    branches: [main]
   pull_request:
 
 jobs:

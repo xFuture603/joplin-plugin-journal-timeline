@@ -1,0 +1,60 @@
+name: Release
+
+# semantic-release reads the conventional-commit messages since the last tag,
+# decides the next version, updates package.json, src/manifest.json and the
+# changelog, tags, creates the GitHub release, and publishes to npm.
+#
+# Publishing uses npm trusted publishing (OIDC), so no npm token is stored here.
+# The Joplin plugin repository polls npm for the "joplin-plugin" keyword every
+# 30 minutes and picks the release up from there.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  # Tag, push the release commit, and create the GitHub release.
+  contents: write
+  # semantic-release comments on the issues and PRs a release closes.
+  issues: write
+  pull-requests: write
+  # Mints the short-lived OIDC token npm verifies. Without it the publish falls
+  # back to looking for a token and fails with ENONPMTOKEN.
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # semantic-release works out the last release from the tags, so it
+          # needs the whole history rather than a shallow clone.
+          fetch-depth: 0
+          # semantic-release sets up its own credentials for pushing.
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      # Trusted publishing needs npm 11.5.1+, newer than the npm bundled with
+      # some Node releases.
+      - name: Use an npm new enough for trusted publishing
+        run: |
+          npm install -g npm@latest
+          npm --version
+
+      - run: npm ci
+
+      # Nothing is released if the tests fail.
+      - run: npm test
+
+      - name: Semantic release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release

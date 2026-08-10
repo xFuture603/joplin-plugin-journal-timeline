@@ -4,7 +4,9 @@ A [Joplin](https://joplinapp.org) plugin that shows the dated notes of a journal
 timeline panel, and opens — or creates — today's entry in one click.
 
 <p align="center">
-  <img src="docs/journal_timeline_view.png" alt="Journal View open in Obsidian">
+  <!-- Absolute, because npmjs.com renders this README from the published
+       tarball, which contains no docs/ directory for a relative path to hit. -->
+  <img src="https://raw.githubusercontent.com/xfuture603/joplin-plugin-journal-timeline/main/docs/journal_timeline_view.png" alt="Journal Timeline panel open in Joplin">
 </p>
 
 Any note whose **title is a calendar date** (`YYYY-MM-DD`, e.g. `2026-08-10`) is treated as a
@@ -16,8 +18,8 @@ and other material alongside the journal itself.
 - Reads as a continuous journal: each entry shows its date as a heading — "Friday, 7 August" —
   followed by the note itself, rendered with Joplin's own Markdown renderer. The heading at the top
   names the year you are currently scrolled to.
-- Today sits in a raised card at the top. If today's entry does not exist yet, the card offers to
-  start it.
+- Today is marked with a badge at the top of the list. If today's entry does not exist yet, a card
+  offers to start it.
 - Clicking anywhere in an entry opens that note in the editor, and the entry you are reading is
   highlighted in the timeline — wherever the selection changes from. Selecting text and following
   links still work as you would expect.
@@ -33,7 +35,7 @@ and other material alongside the journal itself.
 Search for **Journal Timeline** in _Joplin → Preferences → Plugins_.
 
 To install a locally built copy instead, use _Preferences → Plugins → the gear icon → Install from
-file_ and pick `publish/journal-timeline.jpl`.
+file_ and pick the `.jpl` from `publish/`.
 
 ## Usage
 
@@ -151,6 +153,51 @@ To update the scaffold (`api/`, `webpack.config.js`, …) to a newer Joplin rele
 ```sh
 npm run update
 ```
+
+## Releasing
+
+Releases are fully automated by [`.github/workflows/release.yml`](.github/workflows/release.yml).
+**You never edit a version number by hand.** Merge to `main` and semantic-release works out the next
+version from the commit messages, updates `package.json`, `src/manifest.json` and `CHANGELOG.md`,
+tags, creates the GitHub release, and publishes to npm.
+
+Publishing uses npm **trusted publishing**: GitHub Actions proves the workflow's identity over OIDC,
+so no npm token is stored in this repository and npm attaches a provenance attestation
+automatically.
+
+### Commit messages decide the version
+
+Commits must follow [Conventional Commits](https://www.conventionalcommits.org). This is the whole
+input to the release:
+
+| Commit | Release |
+| --- | --- |
+| `fix: stop the panel scrolling to the top on refresh` | patch — 1.0.1 |
+| `feat: group entries by month` | minor — 1.1.0 |
+| `feat!: drop support for Joplin 3.2` (or a `BREAKING CHANGE:` footer) | major — 2.0.0 |
+| `chore:`, `docs:`, `test:`, `refactor:` | none |
+
+A push containing no releasable commits simply publishes nothing.
+
+### One-off setup on npmjs.com
+
+On the package page → **Settings → Trusted Publisher**, add a GitHub Actions publisher. Every field
+is case-sensitive and npm does not validate it until a publish is attempted:
+
+| Field | Value |
+| --- | --- |
+| Organization or user | `xfuture603` |
+| Repository | `joplin-plugin-journal-timeline` |
+| Workflow filename | `release.yml` |
+
+### Why the version is written twice
+
+npm reads `package.json`; Joplin reads `src/manifest.json`. semantic-release only knows about the
+first, so [`scripts/set-version.js`](scripts/set-version.js) runs in its `prepare` step and copies
+the version across before the `.jpl` is built. The two can never drift.
+
+The Joplin plugin repository polls npm for the `joplin-plugin` keyword every 30 minutes, so a
+release reaches Joplin's plugin search shortly after the workflow finishes.
 
 ## License
 
