@@ -1,7 +1,7 @@
 # Journal Timeline
 
 A [Joplin](https://joplinapp.org) plugin that reads your dated journal notes as a continuous
-timeline, and opens — or creates — today's entry in one click.
+timeline, and opens - or creates - today's entry in one click.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/xFuture603/joplin-plugin-journal-timeline/main/docs/journal_timeline_view.png" alt="Journal Timeline panel open in Joplin">
@@ -13,7 +13,7 @@ and other material alongside the journal itself.
 
 ## Features
 
-- Reads as a continuous journal: each entry shows its date as a heading — "Friday, 7 August" —
+- Reads as a continuous journal: each entry shows its date as a heading - "Friday, 7 August" -
   followed by the note itself, rendered exactly as Joplin renders it. The heading at the top of the
   panel names the year you are scrolled to.
 - Today is badged at the top of the list. If today's entry does not exist yet, a card offers to
@@ -22,7 +22,7 @@ and other material alongside the journal itself.
   highlighted. Selecting text and following links work as you would expect.
 - Attachments appear as thumbnails so a photo cannot swallow an entry. Click one to expand it, or
   switch images off entirely.
-- Keeps itself up to date as notes are created, edited, moved, deleted or synced — without losing
+- Keeps itself up to date as notes are created, edited, moved, deleted or synced - without losing
   your place.
 
 ## Requirements
@@ -38,13 +38,13 @@ Search for **Journal Timeline** in _Joplin → Preferences → Plugins_ and clic
 The panel appears in the sidebar the first time the plugin runs, and afterwards remembers whether
 you left it open or closed.
 
-| Action | Where |
-| --- | --- |
-| Show or hide the panel | Toolbar button, _Tools → Journal Timeline_, or `Ctrl/Cmd+Alt+J` |
-| Open today's entry | The calendar button, or _Tools → Journal Timeline_ |
-| Open an entry in the editor | Click anywhere in it |
-| Follow a link in an entry | Click the link — notes open in Joplin, everything else in your browser |
-| Expand or shrink an image | Click the image |
+| Action                      | Where                                                                  |
+| --------------------------- | ---------------------------------------------------------------------- |
+| Show or hide the panel      | Toolbar button, _Tools → Journal Timeline_, or `Ctrl/Cmd+Alt+J`        |
+| Open today's entry          | The calendar button, or _Tools → Journal Timeline_                     |
+| Open an entry in the editor | Click anywhere in it                                                   |
+| Follow a link in an entry   | Click the link - notes open in Joplin, everything else in your browser |
+| Expand or shrink an image   | Click the image                                                        |
 
 The panel is narrow by default. Drag its edge, or use _View → Change application layout_, to give
 the reader a comfortable width.
@@ -56,34 +56,29 @@ finishes, or the date rolls over at midnight.
 
 _Preferences → Journal Timeline_
 
-| Setting | Default | What it does |
-| --- | --- | --- |
-| Journal notebook | _(create a new one)_ | Choose the notebook your journal lives in, from a list of every notebook you have. |
-| Name for the new notebook | `Journals` | Only used while the setting above is on **+ Create a new notebook…**. Use `/` to nest it, e.g. `Journals/Personal`. |
-| Entries shown | `30` | How many recent entries to show, up to 365. Each is rendered in full, so higher values are slower. `0` shows everything. |
-| Show images in entries | on | Turn off to hide attachments in the panel. Your notes are not changed — images still appear in the editor and note viewer. |
+| Setting                   | Default              | What it does                                                                                                               |
+| ------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Journal notebook          | _(create a new one)_ | Choose the notebook your journal lives in, from a list of every notebook you have.                                         |
+| Name for the new notebook | `Journals`           | Only used while the setting above is on **+ Create a new notebook…**. Use `/` to nest it, e.g. `Journals/Personal`.        |
+| Entries shown             | `30`                 | How many recent entries to show, up to 365. Each is rendered in full, so higher values are slower. `0` shows everything.   |
+| Show images in entries    | on                   | Turn off to hide attachments in the panel. Your notes are not changed - images still appear in the editor and note viewer. |
 
 ### Using a journal you already have
 
 If you already keep a notebook called `Journals`, the plugin adopts it the first time it runs
-rather than creating a second one — your existing entries simply appear, with nothing to set up.
+rather than creating a second one - your existing entries simply appear, with nothing to set up.
 
 To use a notebook under a different name, pick it from the **Journal notebook** list.
 
 ### Starting a new journal
 
 Leave **Journal notebook** on _Create a new notebook_ and set the name you want. The notebook is
-created the first time you add an entry, never merely by opening the panel — so you can change your
+created the first time you add an entry, never merely by opening the panel - so you can change your
 mind without leaving an empty notebook behind. Once created, the setting switches to it
 automatically.
 
 The setting remembers the notebook itself rather than its name, so renaming or moving your journal
 will not break it.
-
-## Contributing
-
-Bug reports and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for how to build
-and run the plugin locally.
 
 ## License
 
