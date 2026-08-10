@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.1](https://github.com/xFuture603/joplin-plugin-journal-timeline/compare/v1.0.0...v1.0.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* render the README screenshot on npmjs.com ([aa9f1de](https://github.com/xFuture603/joplin-plugin-journal-timeline/commit/aa9f1de55d05a4348a4a42549a63ab7bc96cf53c))
+* render the README screenshot on npmjs.com ([6deccd4](https://github.com/xFuture603/joplin-plugin-journal-timeline/commit/6deccd4a7f970d42d0b0935d1cc9413355b363f5))
+* use the canonical GitHub owner casing in project URLs ([1e2f1df](https://github.com/xFuture603/joplin-plugin-journal-timeline/commit/1e2f1df10e57a0c29a8ed4f38eea38c3e44f9769))
+
 ## 1.0.0
 
 First public release.
