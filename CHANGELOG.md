@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/xFuture603/joplin-plugin-journal-timeline/compare/v1.0.1...v1.0.2) (2026-08-10)
+
+
+### Bug Fixes
+
+* clean up README.md ([3011707](https://github.com/xFuture603/joplin-plugin-journal-timeline/commit/301170746ca93c77b7010717937cd14c575eeea5))
+
 ## [1.0.1](https://github.com/xFuture603/joplin-plugin-journal-timeline/compare/v1.0.0...v1.0.1) (2026-08-10)
 
 

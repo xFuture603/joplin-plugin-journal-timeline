@@ -2,7 +2,7 @@
   "manifest_version": 1,
   "id": "com.github.xfuture603.journal-timeline",
   "app_min_version": "3.2",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "name": "Journal Timeline",
   "description": "Reads your dated journal notes as a continuous timeline, and opens or creates today's entry in one click.",
   "author": "Daniel Uhlmann",
