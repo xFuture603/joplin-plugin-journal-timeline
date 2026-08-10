@@ -29,7 +29,7 @@ jobs:
           man=$(node -p "require('./src/manifest.json').version")
           test "$pkg" = "$man" || { echo "Version mismatch: package.json $pkg, manifest $man"; exit 1; }
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: plugin
           path: publish/*.jpl
