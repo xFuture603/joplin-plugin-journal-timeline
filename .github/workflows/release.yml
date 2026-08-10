@@ -49,6 +49,17 @@ jobs:
           npm install -g npm@latest
           npm --version
 
+      # Separates "the workflow cannot mint an OIDC token" from "npm rejected
+      # the token". Without this the only symptom of either is EINVALIDNPMTOKEN,
+      # which points at a token that deliberately does not exist.
+      - name: Check the OIDC context is available
+        run: |
+          if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "::error::No OIDC context: the id-token: write permission is not in effect for this job."
+            exit 1
+          fi
+          echo "OIDC context present - the job can mint an id token."
+
       - run: npm ci
 
       # Nothing is released if the tests fail.
