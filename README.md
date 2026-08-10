@@ -6,7 +6,7 @@ timeline panel, and opens — or creates — today's entry in one click.
 <p align="center">
   <!-- Absolute, because npmjs.com renders this README from the published
        tarball, which contains no docs/ directory for a relative path to hit. -->
-  <img src="https://raw.githubusercontent.com/xfuture603/joplin-plugin-journal-timeline/main/docs/journal_timeline_view.png" alt="Journal Timeline panel open in Joplin">
+  <img src="https://raw.githubusercontent.com/xFuture603/joplin-plugin-journal-timeline/main/docs/journal_timeline_view.png" alt="Journal Timeline panel open in Joplin">
 </p>
 
 Any note whose **title is a calendar date** (`YYYY-MM-DD`, e.g. `2026-08-10`) is treated as a
@@ -186,7 +186,7 @@ is case-sensitive and npm does not validate it until a publish is attempted:
 
 | Field | Value |
 | --- | --- |
-| Organization or user | `xfuture603` |
+| Organization or user | `xFuture603` |
 | Repository | `joplin-plugin-journal-timeline` |
 | Workflow filename | `release.yml` |
 

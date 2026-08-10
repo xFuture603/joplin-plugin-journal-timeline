@@ -11,10 +11,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xfuture603/joplin-plugin-journal-timeline.git"
+    "url": "git+https://github.com/xFuture603/joplin-plugin-journal-timeline.git"
   },
-  "homepage": "https://github.com/xfuture603/joplin-plugin-journal-timeline#readme",
-  "bugs": "https://github.com/xfuture603/joplin-plugin-journal-timeline/issues",
+  "homepage": "https://github.com/xFuture603/joplin-plugin-journal-timeline#readme",
+  "bugs": "https://github.com/xFuture603/joplin-plugin-journal-timeline/issues",
   "keywords": [
     "joplin-plugin"
   ],
