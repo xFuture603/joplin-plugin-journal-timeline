@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.1.0](https://github.com/xFuture603/joplin-plugin-journal-timeline/compare/v1.0.2...v1.1.0) (2026-08-11)
+
+
+### Features
+
+* changed to github maintainer name ([061590c](https://github.com/xFuture603/joplin-plugin-journal-timeline/commit/061590c909095fc7c3fdfc99fa23419f8c51052c))
+
 ## [1.0.2](https://github.com/xFuture603/joplin-plugin-journal-timeline/compare/v1.0.1...v1.0.2) (2026-08-10)
 
 
