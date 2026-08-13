@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.2.0](https://github.com/xFuture603/joplin-plugin-journal-timeline/compare/v1.1.0...v1.2.0) (2026-08-13)
+
+
+### Features
+
+* on-this day as a feature ([b7352be](https://github.com/xFuture603/joplin-plugin-journal-timeline/commit/b7352beacebb3bee5147044bbfca89c3684d7788))
+
 # [1.1.0](https://github.com/xFuture603/joplin-plugin-journal-timeline/compare/v1.0.2...v1.1.0) (2026-08-11)
 
 
