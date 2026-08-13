@@ -21,7 +21,7 @@ export interface JournalEntry {
 	updatedTime: number;
 }
 
-export interface NoteContent {
+interface NoteContent {
 	body: string;
 	/** 1 = Markdown, 2 = HTML. */
 	markupLanguage: number;
@@ -60,17 +60,6 @@ export interface FolderPath {
 }
 
 const getFolders = () => getAll<Folder>(['folders'], { fields: ['id', 'title', 'parent_id'] });
-
-/** Returns a single notebook, or null when it no longer exists. */
-export const getFolderById = async (id: string): Promise<Folder | null> => {
-	if (!id) return null;
-
-	try {
-		return await joplin.data.get(['folders', id], { fields: ['id', 'title', 'parent_id'] }) as Folder;
-	} catch (error) {
-		return null;
-	}
-};
 
 const buildFolderPath = (folder: Folder, byId: Map<string, Folder>): string => {
 	const parts = [folder.title];
@@ -111,8 +100,12 @@ const findChild = (folders: Folder[], parentId: string, title: string): Folder |
 	return folders.find(folder => (folder.parent_id || '') === parentId && folder.title.trim().toLowerCase() === wanted);
 };
 
-/** Resolves a "Parent/Child" path to a notebook, or null when it does not exist. */
-export const findFolderByPath = async (folderPath: string): Promise<Folder | null> => {
+/**
+ * Walks a "Parent/Child" path segment by segment. With `create`, the notebooks
+ * missing along the way are made as it goes; without it, the first gap ends the
+ * walk. An empty path has no notebook to reach, so it is null either way.
+ */
+const walkFolderPath = async (folderPath: string, create: boolean): Promise<Folder | null> => {
 	const segments = splitFolderPath(folderPath);
 	if (!segments.length) return null;
 
@@ -122,12 +115,23 @@ export const findFolderByPath = async (folderPath: string): Promise<Folder | nul
 
 	for (const segment of segments) {
 		current = findChild(folders, parentId, segment) ?? null;
-		if (!current) return null;
+
+		if (!current) {
+			if (!create) return null;
+
+			const body = parentId ? { title: segment, parent_id: parentId } : { title: segment };
+			current = await joplin.data.post(['folders'], null, body) as Folder;
+			folders.push(current);
+		}
+
 		parentId = current.id;
 	}
 
 	return current;
 };
+
+/** Resolves a "Parent/Child" path to a notebook, or null when it does not exist. */
+export const findFolderByPath = (folderPath: string): Promise<Folder | null> => walkFolderPath(folderPath, false);
 
 /**
  * Like `findFolderByPath`, but creates the missing notebooks along the path.
@@ -135,27 +139,12 @@ export const findFolderByPath = async (folderPath: string): Promise<Folder | nul
  * must never create notebooks as a side effect.
  */
 export const findOrCreateFolderByPath = async (folderPath: string): Promise<Folder> => {
-	const segments = splitFolderPath(folderPath);
-	if (!segments.length) throw new Error('The journal notebook path is empty.');
+	const folder = await walkFolderPath(folderPath, true);
 
-	const folders = await getFolders();
-	let parentId = '';
-	let current: Folder | null = null;
+	// Creating cannot fail to find a notebook, so this is the empty path.
+	if (!folder) throw new Error('The journal notebook path is empty.');
 
-	for (const segment of segments) {
-		let folder = findChild(folders, parentId, segment);
-
-		if (!folder) {
-			const body = parentId ? { title: segment, parent_id: parentId } : { title: segment };
-			folder = await joplin.data.post(['folders'], null, body) as Folder;
-			folders.push(folder);
-		}
-
-		current = folder;
-		parentId = folder.id;
-	}
-
-	return current as Folder;
+	return folder;
 };
 
 export interface JournalListing {

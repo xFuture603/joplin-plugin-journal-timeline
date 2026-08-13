@@ -97,11 +97,12 @@
 }
 
 /* Entries bleed to the panel edge so the hover and selection backgrounds line
-   up with each other rather than floating inside the text column. */
+   up with each other rather than floating inside the text column. Square: a
+   corner radius on a band that runs edge to edge only rounds against the panel
+   wall, which reads as a card that failed to fit rather than a row. */
 .jt-entry {
 	padding: 16px var(--jt-gutter) 6px;
 	margin: 0 calc(-1 * var(--jt-gutter));
-	border-radius: 6px;
 }
 
 /* The whole entry opens its note, so it needs to read as one target. */
@@ -176,7 +177,6 @@
 	margin-left: calc(-1 * var(--jt-gutter));
 	background: var(--joplin-raised-background-color, rgba(128, 128, 128, 0.12));
 	border-left: 3px solid var(--joplin-url-color, #155bda);
-	border-radius: 0 6px 6px 0;
 }
 
 /*

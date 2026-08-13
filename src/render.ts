@@ -21,15 +21,17 @@ const remember = (key: string, html: string): string => {
 	return html;
 };
 
-const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 /**
  * Drops a leading "# 2026-08-10" heading. The panel shows the date as the entry
  * heading already, and entries written by older versions of this plugin - or by
  * hand - commonly repeat it as the first line.
+ *
+ * `title` is interpolated raw because an entry only has a title once it has
+ * matched `/^\d{4}-\d{2}-\d{2}$/` in parseJournalTitle: digits and hyphens,
+ * nothing a regex reads as syntax. Escape it again if that ever stops holding.
  */
 export const stripRepeatedTitle = (body: string, title: string): string => {
-	return body.replace(new RegExp(`^\\s*#{1,6}\\s+${escapeRegExp(title)}\\s*(?:\\n|$)`), '');
+	return body.replace(new RegExp(`^\\s*#{1,6}\\s+${title}\\s*(?:\\n|$)`), '');
 };
 
 /**

@@ -83,12 +83,6 @@ const yearsAgoLabel = (date: Date): string => {
 	return years === 1 ? '1 year ago' : `${years} years ago`;
 };
 
-const iconButton = (action: string, icon: string, label: string): string => `
-	<button type="button" class="jt-icon-button" data-action="${action}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">
-		<i class="fas ${icon}" aria-hidden="true"></i>
-	</button>
-`;
-
 /** Font Awesome 5 is already loaded in plugin webviews; FA6-only names render blank. */
 const renderTopBar = (title: string, folderLabel: string): string => `
 	<header class="jt-topbar">
@@ -97,7 +91,9 @@ const renderTopBar = (title: string, folderLabel: string): string => `
 		</div>
 		<h1 class="jt-topbar__title">${escapeHtml(title)}</h1>
 		<div class="jt-topbar__actions">
-			${iconButton('open-today', 'fa-calendar-day', 'Go to today')}
+			<button type="button" class="jt-icon-button" data-action="open-today" title="Go to today" aria-label="Go to today">
+				<i class="fas fa-calendar-day" aria-hidden="true"></i>
+			</button>
 		</div>
 	</header>
 `;
@@ -196,15 +192,6 @@ const renderPlaceholder = (todayTitle: string): string => {
 	`;
 };
 
-/**
- * The heading names the year you are reading, not the range the panel holds -
- * panel.js retargets it as you scroll. This is only the starting value, for the
- * top of the list.
- */
-const openingYear = (entries: JournalEntry[]): string => {
-	return `${(entries.length ? entries[0].date : new Date()).getFullYear()}`;
-};
-
 const renderStatusNotice = (state: PanelState): string => {
 	if (state.status === 'missing') {
 		return renderNotice('The selected notebook no longer exists. Choose another in Preferences → Journal Timeline.', ' jt-notice--warn');
@@ -223,6 +210,11 @@ const renderStatusNotice = (state: PanelState): string => {
 
 export const buildPanelHtml = (state: PanelState): string => {
 	const { entries, bodies, todayTitle, maxEntries, truncated } = state;
+
+	// The heading names the year you are reading, not the range the panel holds -
+	// panel.js retargets it as you scroll. This is only the starting value, for
+	// the top of the list.
+	const openingYear = (entries.length ? entries[0].date : new Date()).getFullYear();
 
 	const todayIndex = entries.findIndex(entry => entry.title === todayTitle);
 
@@ -251,7 +243,7 @@ export const buildPanelHtml = (state: PanelState): string => {
 
 	return `
 		<div class="jt${state.showImages ? '' : ' jt--no-images'}">
-			${renderTopBar(openingYear(entries), state.folderLabel)}
+			${renderTopBar(`${openingYear}`, state.folderLabel)}
 			<div class="jt-scroll">
 				${renderStatusNotice(state)}
 				${placeholder}

@@ -1,6 +1,6 @@
 import joplin from 'api';
 import { ViewHandle } from 'api/types';
-import { findOrCreateFolderByPath, findOrCreateJournalNote, getFolderById, getFolderPaths, listJournalEntries } from './journal';
+import { findOrCreateFolderByPath, findOrCreateJournalNote, getFolderPaths, listJournalEntries } from './journal';
 import { buildErrorHtml, buildPanelHtml, FolderStatus } from './panelHtml';
 import { CREATE_NEW_FOLDER, getSettings, refreshFolderOptions, setFolderId } from './settings';
 import { renderEntryBodies } from './render';
@@ -169,18 +169,22 @@ export class JournalPanel {
 	}
 
 	public async openToday(): Promise<void> {
-		const { folderId, newFolderName } = await getSettings();
-		const existing = folderId === CREATE_NEW_FOLDER ? null : await getFolderById(folderId);
+		// The panel already renders from resolveFolder, and it answers exactly what
+		// is needed here: an id when the notebook exists, otherwise the name to
+		// create it under. Asking it again keeps the two from disagreeing about
+		// which notebook the journal lives in.
+		const resolved = await resolveFolder();
+		let folderId = resolved.id;
 
-		// Creating the notebook is what turns the "create a new notebook" choice
-		// into a real selection, so the dropdown is pointed at it straight away.
-		const folder = existing ?? await findOrCreateFolderByPath(newFolderName);
-		if (!existing) {
-			await setFolderId(folder.id);
+		if (!folderId) {
+			// Creating the notebook is what turns the "create a new notebook" choice
+			// into a real selection, so the dropdown is pointed at it straight away.
+			folderId = (await findOrCreateFolderByPath(resolved.label)).id;
+			await setFolderId(folderId);
 			await refreshFolderOptions();
 		}
 
-		const noteId = await findOrCreateJournalNote(folder.id, todayTitle());
+		const noteId = await findOrCreateJournalNote(folderId, todayTitle());
 		await joplin.commands.execute('openNote', noteId);
 		await this.render();
 	}
@@ -193,14 +197,14 @@ export class JournalPanel {
 
 		this.rendering = true;
 		try {
-			await this.setHtml();
+			// Anything that arrived mid-render is drawn on the next pass rather than
+			// dropped, so the panel always settles on the newest content.
+			do {
+				this.renderPending = false;
+				await this.setHtml();
+			} while (this.renderPending);
 		} finally {
 			this.rendering = false;
-		}
-
-		if (this.renderPending) {
-			this.renderPending = false;
-			await this.renderNow();
 		}
 	}
 

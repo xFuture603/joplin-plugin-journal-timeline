@@ -10,8 +10,5 @@
   "repository_url": "https://github.com/xFuture603/joplin-plugin-journal-timeline",
   "platforms": ["desktop"],
   "keywords": ["journal", "diary", "timeline", "daily notes"],
-  "categories": ["productivity", "viewer"],
-  "screenshots": [],
-  "icons": {},
-  "promo_tile": {}
+  "categories": ["productivity", "viewer"]
 }
