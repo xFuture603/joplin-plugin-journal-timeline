@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.3.0](https://github.com/xFuture603/joplin-plugin-journal-timeline/compare/v1.2.0...v1.3.0) (2026-08-13)
+
+
+### Features
+
+* **ui:** minor styling improvements ([fbbeb9a](https://github.com/xFuture603/joplin-plugin-journal-timeline/commit/fbbeb9a161248af34e8c5489d7a79ac2a91da87c))
+
 # [1.2.0](https://github.com/xFuture603/joplin-plugin-journal-timeline/compare/v1.1.0...v1.2.0) (2026-08-13)
 
 
