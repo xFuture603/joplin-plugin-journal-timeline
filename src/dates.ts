@@ -42,3 +42,16 @@ export const daysFromToday = (date: Date): number => {
 	return Math.round((startOfDay(date).getTime() - startOfDay(new Date()).getTime()) / MS_PER_DAY);
 };
 
+/**
+ * Whole years ago that `date` falls on today's month and day, or 0 when it is
+ * not the same day of the year. 29 February matches only in a leap year:
+ * rolling it onto the 28th would claim an anniversary the calendar does not
+ * have that year.
+ */
+export const sameDayYearsAgo = (date: Date): number => {
+	const today = new Date();
+	if (date.getMonth() !== today.getMonth() || date.getDate() !== today.getDate()) return 0;
+
+	return Math.max(today.getFullYear() - date.getFullYear(), 0);
+};
+

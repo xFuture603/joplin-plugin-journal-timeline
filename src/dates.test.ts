@@ -1,7 +1,8 @@
-import { daysFromToday, parseJournalTitle, todayTitle, toJournalTitle } from './dates';
+import { daysFromToday, parseJournalTitle, sameDayYearsAgo, todayTitle, toJournalTitle } from './dates';
 
 const today = new Date();
 const shift = (days: number) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + days);
+const yearsBack = (years: number) => new Date(today.getFullYear() - years, today.getMonth(), today.getDate());
 
 describe('toJournalTitle', () => {
 	// Titles were once produced with toISOString(), which is UTC: late in the
@@ -60,5 +61,46 @@ describe('daysFromToday', () => {
 		const later = shift(-3);
 		later.setHours(23, 59);
 		expect(daysFromToday(later)).toBe(-3);
+	});
+});
+
+describe('sameDayYearsAgo', () => {
+	test('counts the years back to the same month and day', () => {
+		expect(sameDayYearsAgo(yearsBack(1))).toBe(1);
+		expect(sameDayYearsAgo(yearsBack(7))).toBe(7);
+	});
+
+	// "On this day" is about the past; today itself is already in the stream and
+	// a future note is not an anniversary of anything.
+	test('ignores today and the future', () => {
+		expect(sameDayYearsAgo(shift(0))).toBe(0);
+		expect(sameDayYearsAgo(yearsBack(-1))).toBe(0);
+	});
+
+	test('ignores neighbouring days in past years', () => {
+		const nearMiss = yearsBack(1);
+		nearMiss.setDate(nearMiss.getDate() + 1);
+		expect(sameDayYearsAgo(nearMiss)).toBe(0);
+	});
+
+	// A leap day has no counterpart in a common year; nudging it onto 28 February
+	// would announce an anniversary the calendar does not have.
+	test('matches a leap day only in a leap year', () => {
+		try {
+			jest.useFakeTimers().setSystemTime(new Date(2028, 1, 29));
+			expect(sameDayYearsAgo(new Date(2024, 1, 29))).toBe(4);
+
+			// 2027 has no 29 February, so the 2024 leap day is simply not today.
+			jest.setSystemTime(new Date(2027, 1, 28));
+			expect(sameDayYearsAgo(new Date(2024, 1, 29))).toBe(0);
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
+	test('is unaffected by time of day', () => {
+		const evening = yearsBack(2);
+		evening.setHours(23, 59);
+		expect(sameDayYearsAgo(evening)).toBe(2);
 	});
 });

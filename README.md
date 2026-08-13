@@ -19,9 +19,12 @@ and other material alongside the journal itself.
 - Today is badged at the top of the list. If today's entry does not exist yet, a card offers to
   start it.
 - Clicking anywhere in an entry opens that note in the editor, and whichever entry is open is
-  highlighted. Selecting text and following links work as you would expect.
+  highlighted - starting from nothing, so the panel opens without an entry already picked out.
+  Selecting text and following links work as you would expect.
 - Attachments appear as thumbnails so a photo cannot swallow an entry. Click one to expand it, or
   switch images off entirely.
+- **On this day** shows what you wrote on this date in earlier years, in full, above the timeline -
+  every past year at once, not just last year. It only appears when there is something to show.
 - Keeps itself up to date as notes are created, edited, moved, deleted or synced - without losing
   your place.
 
@@ -62,6 +65,7 @@ _Preferences → Journal Timeline_
 | Name for the new notebook | `Journals`           | Only used while the setting above is on **+ Create a new notebook…**. Use `/` to nest it, e.g. `Journals/Personal`.        |
 | Entries shown             | `30`                 | How many recent entries to show, up to 365. Each is rendered in full, so higher values are slower. `0` shows everything.   |
 | Show images in entries    | on                   | Turn off to hide attachments in the panel. Your notes are not changed - images still appear in the editor and note viewer. |
+| Show "On this day"        | on                   | Puts today's date in earlier years above the timeline. Only appears on days you have written about before.                |
 
 ### Using a journal you already have
 

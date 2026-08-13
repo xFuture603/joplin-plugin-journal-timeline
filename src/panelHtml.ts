@@ -1,5 +1,5 @@
 import { JournalEntry } from './journal';
-import { daysFromToday, parseJournalTitle } from './dates';
+import { daysFromToday, parseJournalTitle, sameDayYearsAgo } from './dates';
 
 export type FolderStatus =
 	/** A notebook is selected and was found. */
@@ -21,6 +21,8 @@ export interface PanelState {
 	truncated: boolean;
 	/** When false, attachments are hidden with CSS - the render cache is untouched. */
 	showImages: boolean;
+	/** Today's date in earlier years, shown above the stream. Empty when off. */
+	onThisDay: JournalEntry[];
 	/** Notes currently open in the editor, highlighted in the reader. */
 	selectedNoteIds: string[];
 }
@@ -50,12 +52,35 @@ const formatEntryDate = (date: Date): string => date.toLocaleDateString(undefine
 	month: 'long',
 });
 
+/**
+ * "12 August 2023", for an "on this day" card. The year leads instead of the
+ * weekday: it is the only thing separating that card from today's, which sits
+ * right above it under the same day and month. Which weekday it fell on years
+ * ago is not why you are reading it.
+ */
+const formatPastDate = (date: Date): string => date.toLocaleDateString(undefined, {
+	day: 'numeric',
+	month: 'long',
+	year: 'numeric',
+});
+
 const relativeLabel = (date: Date): string => {
 	const offset = daysFromToday(date);
 	if (offset === 0) return 'Today';
 	if (offset === -1) return 'Yesterday';
 	if (offset === 1) return 'Tomorrow';
 	return '';
+};
+
+/**
+ * "3 years ago" for an "on this day" card. The date heading deliberately omits
+ * the year, so without this the card would read as an undated repeat of today.
+ */
+const yearsAgoLabel = (date: Date): string => {
+	const years = sameDayYearsAgo(date);
+	if (!years) return '';
+
+	return years === 1 ? '1 year ago' : `${years} years ago`;
 };
 
 const iconButton = (action: string, icon: string, label: string): string => `
@@ -89,26 +114,70 @@ const renderBadge = (label: string): string => {
 	return `<span class="jt-entry__badge${modifier}">${escapeHtml(label)}</span>`;
 };
 
-const renderEntryHeader = (entry: JournalEntry): string => `
+const renderEntryHeader = (entry: JournalEntry, badge: string, dateLabel: string): string => `
 	<div class="jt-entry__header">
 		<button type="button" class="jt-entry__date" data-action="open-note" data-note-id="${escapeHtml(entry.id)}" title="Open ${escapeHtml(entry.title)}">
-			${escapeHtml(formatEntryDate(entry.date))}
+			${escapeHtml(dateLabel)}
 		</button>
-		${renderBadge(relativeLabel(entry.date))}
+		${renderBadge(badge)}
 	</div>
 `;
+
+interface EntryOptions {
+	isToday?: boolean;
+	isSelected?: boolean;
+	/** Replaces the relative-day badge; "on this day" cards name the gap in years. */
+	badge?: string;
+	/** Replaces the date heading; "on this day" cards carry their year. */
+	dateLabel?: string;
+	/**
+	 * Whether panel.js's year spy should watch this entry. Off for "on this day"
+	 * cards: they sit above the stream, so letting them carry data-year would
+	 * retitle the heading to a year the reader has not scrolled to.
+	 */
+	trackYear?: boolean;
+}
 
 // data-note-id lets panel.js move the selection highlight without a re-render.
 // data-action on the article makes the whole entry open its note; the heading
 // stays a real button so the entry is still reachable by keyboard.
-const renderEntry = (entry: JournalEntry, body: string, isToday: boolean, isSelected: boolean): string => `
-	<article class="jt-entry${isToday ? ' jt-entry--today' : ''}${isSelected ? ' jt-entry--selected' : ''}" data-action="open-note" data-note-id="${escapeHtml(entry.id)}" data-year="${entry.date.getFullYear()}">
-		${renderEntryHeader(entry)}
-		${body
-		? `<div class="jt-md">${body}</div>`
-		: `<p class="jt-entry__empty">This entry is empty. <button type="button" class="jt-link" data-action="open-note" data-note-id="${escapeHtml(entry.id)}">Write something</button></p>`}
-	</article>
-`;
+const renderEntry = (entry: JournalEntry, body: string, options: EntryOptions = {}): string => {
+	const {
+		isToday = false,
+		isSelected = false,
+		badge = relativeLabel(entry.date),
+		dateLabel = formatEntryDate(entry.date),
+		trackYear = true,
+	} = options;
+
+	return `
+		<article class="jt-entry${isToday ? ' jt-entry--today' : ''}${isSelected ? ' jt-entry--selected' : ''}" data-action="open-note" data-note-id="${escapeHtml(entry.id)}"${trackYear ? ` data-year="${entry.date.getFullYear()}"` : ''}>
+			${renderEntryHeader(entry, badge, dateLabel)}
+			${body
+			? `<div class="jt-md">${body}</div>`
+			: `<p class="jt-entry__empty">This entry is empty. <button type="button" class="jt-link" data-action="open-note" data-note-id="${escapeHtml(entry.id)}">Write something</button></p>`}
+		</article>
+	`;
+};
+
+/** The same date in earlier years, rendered in full above the stream. */
+const renderOnThisDay = (entries: JournalEntry[], bodies: Map<string, string>, selected: Set<string>): string => {
+	if (!entries.length) return '';
+
+	const cards = entries.map(entry => renderEntry(entry, bodies.get(entry.id) ?? '', {
+		isSelected: selected.has(entry.id),
+		badge: yearsAgoLabel(entry.date),
+		dateLabel: formatPastDate(entry.date),
+		trackYear: false,
+	})).join('');
+
+	return `
+		<section class="jt-onthisday">
+			<h2 class="jt-onthisday__title">On this day</h2>
+			${cards}
+		</section>
+	`;
+};
 
 /** Stand-in card for a day that has no note yet. */
 const renderPlaceholder = (todayTitle: string): string => {
@@ -155,16 +224,26 @@ const renderStatusNotice = (state: PanelState): string => {
 export const buildPanelHtml = (state: PanelState): string => {
 	const { entries, bodies, todayTitle, maxEntries, truncated } = state;
 
-	const hasToday = entries.some(entry => entry.title === todayTitle);
+	const todayIndex = entries.findIndex(entry => entry.title === todayTitle);
 
 	// Offering to start today's entry against a notebook that has vanished would
 	// silently recreate it, so the placeholder is held back.
-	const placeholder = hasToday || state.status === 'missing' ? '' : renderPlaceholder(todayTitle);
+	const placeholder = todayIndex >= 0 || state.status === 'missing' ? '' : renderPlaceholder(todayTitle);
 
 	const selected = new Set(state.selectedNoteIds);
-	const articles = entries
-		.map(entry => renderEntry(entry, bodies.get(entry.id) ?? '', entry.title === todayTitle, selected.has(entry.id)))
-		.join('');
+	const renderStreamEntry = (entry: JournalEntry) => renderEntry(entry, bodies.get(entry.id) ?? '', {
+		isToday: entry.title === todayTitle,
+		isSelected: selected.has(entry.id),
+	});
+
+	// "On this day" is slotted in under today rather than above it. Today is what
+	// the panel is for, and leading with a card from years back - headed by the
+	// same day and month - reads as though the panel opened on the wrong date.
+	// With no note for today the split lands at 0, which puts the section just
+	// below the placeholder standing in for it.
+	const splitAt = todayIndex + 1;
+	const throughToday = entries.slice(0, splitAt).map(renderStreamEntry).join('');
+	const earlier = entries.slice(splitAt).map(renderStreamEntry).join('');
 
 	const footer = truncated
 		? renderNotice(`Showing the ${maxEntries} most recent entries. Change the limit in Preferences → Journal Timeline.`)
@@ -176,7 +255,9 @@ export const buildPanelHtml = (state: PanelState): string => {
 			<div class="jt-scroll">
 				${renderStatusNotice(state)}
 				${placeholder}
-				${articles}
+				${throughToday}
+				${renderOnThisDay(state.onThisDay, bodies, selected)}
+				${earlier}
 				${footer}
 			</div>
 		</div>

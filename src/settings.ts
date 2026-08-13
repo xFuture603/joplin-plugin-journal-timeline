@@ -22,6 +22,7 @@ export enum SettingKey {
 	NewFolderName = 'newFolderName',
 	MaxEntries = 'maxEntries',
 	ShowImages = 'showImages',
+	ShowOnThisDay = 'showOnThisDay',
 	// Private: lets us show the panel on the very first run without overriding
 	// the user's choice to hide it on every subsequent start.
 	PanelIntroduced = 'panelIntroduced',
@@ -33,6 +34,7 @@ export interface JournalSettings {
 	newFolderName: string;
 	maxEntries: number;
 	showImages: boolean;
+	showOnThisDay: boolean;
 }
 
 export const buildFolderOptions = (folders: FolderPath[], selectedId: string): Record<string, string> => {
@@ -106,6 +108,15 @@ export const registerSettings = async () => {
 			description: 'Turn this off to hide attached images in the panel. The notes themselves are not changed - images still appear in the editor and the note viewer.',
 		},
 
+		[SettingKey.ShowOnThisDay]: {
+			value: true,
+			type: SettingItemType.Bool,
+			section: SETTINGS_SECTION,
+			public: true,
+			label: 'Show "On this day"',
+			description: 'Puts the entries from today\'s date in earlier years above the timeline. The section only appears on days you have written about before.',
+		},
+
 		[SettingKey.PanelIntroduced]: {
 			value: false,
 			type: SettingItemType.Bool,
@@ -121,6 +132,7 @@ export const getSettings = async (): Promise<JournalSettings> => {
 		SettingKey.NewFolderName,
 		SettingKey.MaxEntries,
 		SettingKey.ShowImages,
+		SettingKey.ShowOnThisDay,
 	]);
 
 	const newFolderName = `${values[SettingKey.NewFolderName] ?? ''}`.trim();
@@ -130,6 +142,7 @@ export const getSettings = async (): Promise<JournalSettings> => {
 		newFolderName: newFolderName || DEFAULT_FOLDER_NAME,
 		maxEntries: parseMaxEntries(values[SettingKey.MaxEntries]),
 		showImages: values[SettingKey.ShowImages] !== false,
+		showOnThisDay: values[SettingKey.ShowOnThisDay] !== false,
 	};
 };
 

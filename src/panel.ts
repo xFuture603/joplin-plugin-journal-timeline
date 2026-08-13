@@ -65,6 +65,13 @@ export class JournalPanel {
 	/** The day the panel was last drawn for, watched for midnight rollover. */
 	private renderedDay = '';
 
+	// Joplin always has a note open, so seeding the highlight from the editor
+	// meant the panel opened with an entry already picked out - one restored from
+	// the last session, that the reader had not chosen and had no reason to be
+	// looking at. The highlight is earned by a selection made since startup, not
+	// assumed from whatever the app happened to be showing.
+	private selectionSeen = false;
+
 	public async create(): Promise<void> {
 		this.handle = await joplin.views.panels.create(PANEL_ID);
 
@@ -135,6 +142,8 @@ export class JournalPanel {
 	 * the reader's scroll position.
 	 */
 	public async syncSelection(): Promise<void> {
+		this.selectionSeen = true;
+
 		joplin.views.panels.postMessage(this.handle, {
 			type: 'selection',
 			noteIds: await joplin.workspace.selectedNoteIds(),
@@ -204,24 +213,31 @@ export class JournalPanel {
 		this.renderedDay = todayTitle();
 
 		try {
-			const { maxEntries, showImages } = await getSettings();
+			const { maxEntries, showImages, showOnThisDay } = await getSettings();
 			const folder = await resolveFolder();
 			label = folder.label;
 
-			const { entries, total } = folder.id
+			const { entries, total, onThisDay } = folder.id
 				? await listJournalEntries(folder.id, maxEntries)
-				: { entries: [], total: 0 };
+				: { entries: [], total: 0, onThisDay: [] };
+
+			// Bodies for past years are only fetched when the section is on, so
+			// turning it off costs nothing per refresh. An entry appearing in both
+			// lists is rendered once - renderEntryBodies keys by note id, and the
+			// render cache absorbs the repeat.
+			const past = showOnThisDay ? onThisDay : [];
 
 			await joplin.views.panels.setHtml(this.handle, buildPanelHtml({
 				folderLabel: folder.label,
 				status: folder.status,
 				entries,
-				bodies: await renderEntryBodies(entries),
+				bodies: await renderEntryBodies([...entries, ...past]),
 				todayTitle: todayTitle(),
 				maxEntries,
 				truncated: total > entries.length,
 				showImages,
-				selectedNoteIds: await joplin.workspace.selectedNoteIds(),
+				onThisDay: past,
+				selectedNoteIds: this.selectionSeen ? await joplin.workspace.selectedNoteIds() : [],
 			}));
 
 			this.stale = false;

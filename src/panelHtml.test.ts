@@ -21,9 +21,12 @@ const panel = (over: Partial<PanelState> = {}) => buildPanelHtml({
 	maxEntries: 30,
 	truncated: false,
 	showImages: true,
+	onThisDay: [],
 	selectedNoteIds: [],
 	...over,
 });
+
+const yearsBack = (years: number) => new Date(today.getFullYear() - years, today.getMonth(), today.getDate());
 
 const articleFor = (html: string, id: string) => {
 	return (html.match(new RegExp(`<article[^>]*data-note-id="${id}"[^>]*>`)) ?? [''])[0];
@@ -149,6 +152,83 @@ describe('the year heading', () => {
 	test('still exposes the full date in the tooltip', () => {
 		const html = panel({ entries: [entryFor(new Date(2026, 0, 2))] });
 		expect(html).toContain('title="Open 2026-01-02"');
+	});
+});
+
+describe('on this day', () => {
+	const lastYear = entryFor(yearsBack(1));
+	const longAgo = entryFor(yearsBack(4));
+
+	const withPast = (over = {}) => panel({
+		entries: [entryFor(shift(0))],
+		onThisDay: [lastYear, longAgo],
+		bodies: new Map([[lastYear.id, '<p>Hiked to the lake.</p>'], [longAgo.id, '<p>First day.</p>']]),
+		...over,
+	});
+
+	test('renders the past entries in full', () => {
+		const html = withPast();
+		expect(html).toContain('On this day');
+		expect(html).toContain('<p>Hiked to the lake.</p>');
+	});
+
+	// Leading with a card from years back - under the same day and month as today
+	// - reads as though the panel opened on the wrong date.
+	test('sits below today, and above the older entries', () => {
+		const html = withPast({ entries: [entryFor(shift(0)), entryFor(shift(-1))] });
+		const section = html.indexOf('jt-onthisday');
+
+		expect(section).toBeGreaterThan(html.indexOf(entryFor(shift(0)).id));
+		expect(section).toBeLessThan(html.indexOf(entryFor(shift(-1)).id));
+	});
+
+	// Nothing written today, so the placeholder stands in for it.
+	test('sits below the placeholder when today has no note', () => {
+		const html = withPast({ entries: [entryFor(shift(-1))] });
+		expect(html.indexOf('jt-entry--placeholder')).toBeLessThan(html.indexOf('jt-onthisday'));
+	});
+
+	test('says how long ago each one was', () => {
+		const html = withPast();
+		expect(html).toContain('1 year ago');
+		expect(html).toContain('4 years ago');
+	});
+
+	// The stream omits years, so today's heading and a past one are otherwise the
+	// same words - "August 12" directly above "August 12".
+	test('heads the past cards with their year, and today\'s without one', () => {
+		const headings = [...withPast().matchAll(/class="jt-entry__date"[^>]*>([^<]*)</g)].map(match => match[1].trim());
+
+		// Markup order: today, then the two past cards below it.
+		expect(headings[0]).not.toMatch(/\d{4}/);
+		expect(headings[1]).toContain(`${lastYear.date.getFullYear()}`);
+		expect(headings[2]).toContain(`${longAgo.date.getFullYear()}`);
+	});
+
+	// The date headings carry no year, so the badge is the only thing telling a
+	// past entry apart from today's.
+	test('never labels a past entry Today', () => {
+		expect(withPast().match(/jt-entry__badge--today/g)).toHaveLength(1);
+	});
+
+	// panel.js retitles the heading from the topmost data-year it can see. A card
+	// from four years ago sits above the stream, so it must stay unobserved.
+	test('keeps the past cards out of the year spy', () => {
+		expect(withPast()).not.toContain(`data-year="${yearsBack(4).getFullYear()}"`);
+	});
+
+	test('opens the note like any other entry', () => {
+		expect(withPast()).toContain(`data-note-id="${lastYear.id}"`);
+	});
+
+	test('highlights a past entry when it is the one open in the editor', () => {
+		const html = withPast({ selectedNoteIds: [longAgo.id] });
+		expect(articleFor(html, longAgo.id)).toContain('jt-entry--selected');
+	});
+
+	// Turned off in settings, or simply nothing written on this date before.
+	test('disappears entirely when there is nothing to show', () => {
+		expect(panel({ entries: [entryFor(shift(0))] })).not.toContain('jt-onthisday');
 	});
 });
 

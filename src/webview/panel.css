@@ -104,10 +104,23 @@
 	border-radius: 6px;
 }
 
-/* The whole entry opens its note, so it needs to read as one target. The text
-   cursor is kept: selecting a passage matters more here than a pointer would. */
+/* The whole entry opens its note, so it needs to read as one target. */
 .jt-entry[data-note-id]:not(.jt-entry--selected):hover {
 	background: var(--joplin-background-color-hover3, rgba(128, 128, 128, 0.07));
+}
+
+/* The hover highlight already announces the entry as a target, so the cursor
+   has to agree with it - a row that lights up under a text caret reads as
+   broken. Only the entries that actually open a note qualify: the "start
+   today's entry" placeholder is inert apart from its button. */
+.jt-entry[data-note-id] {
+	cursor: pointer;
+}
+
+/* Prose is the exception the pointer must not swallow. Reading an entry means
+   selecting passages out of it, and a caret is the only thing that says so. */
+.jt-entry .jt-md {
+	cursor: auto;
 }
 
 .jt-entry__header {
@@ -164,6 +177,39 @@
 	background: var(--joplin-raised-background-color, rgba(128, 128, 128, 0.12));
 	border-left: 3px solid var(--joplin-url-color, #155bda);
 	border-radius: 0 6px 6px 0;
+}
+
+/*
+ * "On this day": the same date in earlier years, tucked under today rather than
+ * over it. The tint is what marks it as an aside instead of a third entry in
+ * the stream, and the cap keeps a long past entry from burying yesterday - the
+ * section is a glance backwards, not the thing you came to read.
+ */
+.jt-onthisday {
+	max-height: 45vh;
+	padding: 12px var(--jt-gutter) 8px;
+	margin: 12px calc(-1 * var(--jt-gutter)) 18px;
+	overflow-y: auto;
+	/* Deliberately not --joplin-raised-background-color: that is the selected
+	   entry's fill, so a block wearing it reads as "this one is open". A plain
+	   neutral wash belongs to no interactive state, and works on either theme. */
+	background: rgba(128, 128, 128, 0.08);
+	border-radius: 8px;
+}
+
+.jt-onthisday__title {
+	margin: 0;
+	font-size: 0.72em;
+	font-weight: 600;
+	letter-spacing: 0.07em;
+	color: var(--joplin-color-faded, #7c8394);
+	text-transform: uppercase;
+}
+
+/* The cards' own top padding is sized for the stream, where entries need air
+   between them; inside the section it only pushes the first one off its title. */
+.jt-onthisday .jt-entry {
+	padding-top: 10px;
 }
 
 /* The "start today's entry" card, which has no note to select yet. */

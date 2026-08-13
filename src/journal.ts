@@ -1,5 +1,5 @@
 import joplin from 'api';
-import { parseJournalTitle } from './dates';
+import { parseJournalTitle, sameDayYearsAgo } from './dates';
 
 export interface Folder {
 	id: string;
@@ -162,6 +162,8 @@ export interface JournalListing {
 	entries: JournalEntry[];
 	/** Dated notes in the notebook before `maxEntries` was applied. */
 	total: number;
+	/** Today's month and day in earlier years, most recent first. */
+	onThisDay: JournalEntry[];
 }
 
 /** Every note in the notebook whose title is a valid date, most recent first. */
@@ -181,6 +183,10 @@ export const listJournalEntries = async (folderId: string, maxEntries: number): 
 	return {
 		total: entries.length,
 		entries: maxEntries > 0 ? entries.slice(0, maxEntries) : entries,
+		// Taken from the full list rather than the slice: last year's entry is
+		// almost never among the most recent `maxEntries`. This costs no extra
+		// request - every dated note has already been listed above.
+		onThisDay: entries.filter(entry => sameDayYearsAgo(entry.date) > 0),
 	};
 };
 
