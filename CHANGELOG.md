@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.4.0](https://github.com/xFuture603/joplin-plugin-journal-timeline/compare/v1.3.0...v1.4.0) (2026-08-15)
+
+
+### Features
+
+* add date picker option ([b53fd50](https://github.com/xFuture603/joplin-plugin-journal-timeline/commit/b53fd50750c23339b29e71849bedb83088d1a12b))
+
 # [1.3.0](https://github.com/xFuture603/joplin-plugin-journal-timeline/compare/v1.2.0...v1.3.0) (2026-08-13)
 
 
