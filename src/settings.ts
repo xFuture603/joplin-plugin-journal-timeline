@@ -163,6 +163,32 @@ export const parseMaxEntries = (raw: unknown): number => {
 
 export const setFolderId = (folderId: string) => joplin.settings.setValue(SettingKey.FolderId, folderId);
 
+// Joplin's own editor font size. This is an internal setting key rather than a
+// documented plugin-API constant, so every read of it is defensive.
+const EDITOR_FONT_SIZE_KEY = 'style.editor.fontSize';
+
+/**
+ * The size notes are read at, in px, or 0 to leave the panel inheriting
+ * `--joplin-font-size`.
+ *
+ * The panel renders note bodies, so it belongs at the editor's size rather than
+ * the UI's: `--joplin-font-size` measures menus, the sidebar and the note list,
+ * and is usually the smaller of the two. Read separately from `getSettings` so
+ * only the render pays for it.
+ */
+export const getEditorFontSize = async (): Promise<number> => {
+	try {
+		const [value] = await joplin.settings.globalValues([EDITOR_FONT_SIZE_KEY]);
+		const size = Number(value);
+
+		return Number.isFinite(size) && size > 0 ? size : 0;
+	} catch (error) {
+		// An unknown key throws rather than returning nothing, and a Joplin that
+		// renames it must leave the panel readable, not unstyled.
+		return 0;
+	}
+};
+
 let lastOptionsSignature = '';
 
 /**

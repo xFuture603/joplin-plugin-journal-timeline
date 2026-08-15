@@ -25,6 +25,8 @@ and other material alongside the journal itself.
   switch images off entirely.
 - **On this day** shows what you wrote on this date in earlier years, in full, above the timeline -
   every past year at once, not just last year. It only appears when there is something to show.
+- Missed a day? Pick it from the date button and the entry is created for you, correctly titled -
+  no hand-naming a note `2026-08-11` to make it show up.
 - Keeps itself up to date as notes are created, edited, moved, deleted or synced - without losing
   your place.
 
@@ -44,7 +46,8 @@ you left it open or closed.
 | Action                      | Where                                                                  |
 | --------------------------- | ---------------------------------------------------------------------- |
 | Show or hide the panel      | Toolbar button, _Tools → Journal Timeline_, or `Ctrl/Cmd+Alt+J`        |
-| Open today's entry          | The calendar button, or _Tools → Journal Timeline_                     |
+| Open today's entry          | The pen button, or _Tools → Journal Timeline_                          |
+| Open any other day          | The calendar button - picks a day and writes the entry if it has none  |
 | Open an entry in the editor | Click anywhere in it                                                   |
 | Follow a link in an entry   | Click the link - notes open in Joplin, everything else in your browser |
 | Expand or shrink an image   | Click the image                                                        |

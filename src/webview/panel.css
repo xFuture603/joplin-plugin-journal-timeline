@@ -18,6 +18,10 @@
 	   scrolls inside the webview instead of the host adding an outer scrollbar. */
 	height: 100vh;
 	font-family: var(--joplin-font-family, sans-serif);
+	/* Fallback only: the panel normally carries an inline font-size taken from
+	   Joplin's editor setting, because this variable is the UI metric that sizes
+	   menus and the note list, not the size notes are read at. Every other size
+	   here is in em, so whichever wins scales the whole reader. */
 	font-size: var(--joplin-font-size, 14px);
 	color: var(--joplin-color, #32373f);
 }
@@ -79,6 +83,28 @@
 	background: transparent;
 	border: none;
 	border-radius: 5px;
+}
+
+/*
+ * The date picker is the button; the input exists only to own the native
+ * calendar, raised through showPicker(). Kept rendered and anchored under the
+ * button so the popup lands there - display:none would have nothing to open.
+ */
+.jt-pick {
+	position: relative;
+	display: inline-flex;
+}
+
+.jt-pick__input {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	border: none;
+	opacity: 0;
+	pointer-events: none;
 }
 
 .jt-icon-button:hover {

@@ -22,6 +22,7 @@ const panel = (over: Partial<PanelState> = {}) => buildPanelHtml({
 	truncated: false,
 	showImages: true,
 	onThisDay: [],
+	fontSize: 0,
 	selectedNoteIds: [],
 	...over,
 });
@@ -249,10 +250,52 @@ describe('images', () => {
 	});
 });
 
+describe('font size', () => {
+	// The panel reads note bodies, so it is sized by Joplin's editor setting
+	// rather than --joplin-font-size, which measures menus and the note list.
+	test('renders at the editor size when Joplin reports one', () => {
+		expect(panel({ fontSize: 18 })).toContain('style="font-size: 18px"');
+	});
+
+	// Every other size in the panel is in em, so the one root value carries them.
+	test('leaves the stylesheet in charge when there is no editor size', () => {
+		expect(panel({ fontSize: 0 })).not.toContain('style="font-size');
+		expect(panel({ fontSize: 0 })).toContain('class="jt"');
+	});
+
+	test('composes with images being hidden', () => {
+		expect(panel({ fontSize: 18, showImages: false })).toContain('class="jt jt--no-images" style="font-size: 18px"');
+	});
+});
+
 describe('the top bar', () => {
 	// Joplin ships Font Awesome 5 to plugin webviews; FA6-only names render blank.
 	test('uses Font Awesome 5 icon names', () => {
-		expect(panel()).toContain('fa-calendar-day');
+		expect(panel()).toContain('fa-pen');
+		expect(panel()).toContain('fa-calendar-alt');
+	});
+
+	// Two calendars side by side were indistinguishable at 14px. The calendar is
+	// the one that opens a calendar; writing today gets a pen.
+	test('does not put two calendar icons next to each other', () => {
+		expect(panel().match(/fa-calendar/g)).toHaveLength(1);
+	});
+
+	// The input is the picker's mechanism, not a control in its own right: it is
+	// opened from the button through showPicker(), so it stays out of the tab
+	// order and off the accessibility tree.
+	test('carries a date picker behind the button', () => {
+		const html = panel();
+
+		expect(html).toContain('data-action="pick-date"');
+		expect(html).toMatch(/<input type="date" class="jt-pick__input"[^>]*tabindex="-1"/);
+		expect(html).toContain('aria-label="Open another day"');
+	});
+
+	// Left undated so it reads as "pick a day" rather than repeating today, which
+	// is already the entry at the top of the list.
+	test('leaves the picker empty', () => {
+		expect(panel()).not.toMatch(/class="jt-pick__input"[^>]*value=/);
 	});
 
 	// The reader refreshes itself, so a manual retry only earns its place where

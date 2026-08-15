@@ -23,6 +23,12 @@ export interface PanelState {
 	showImages: boolean;
 	/** Today's date in earlier years, shown above the stream. Empty when off. */
 	onThisDay: JournalEntry[];
+	/**
+	 * Root size in px, from Joplin's editor setting. Every other size in the
+	 * panel is in `em`, so this one value scales the whole reader. 0 leaves the
+	 * stylesheet's `--joplin-font-size` in charge.
+	 */
+	fontSize: number;
 	/** Notes currently open in the editor, highlighted in the reader. */
 	selectedNoteIds: string[];
 }
@@ -91,8 +97,14 @@ const renderTopBar = (title: string, folderLabel: string): string => `
 		</div>
 		<h1 class="jt-topbar__title">${escapeHtml(title)}</h1>
 		<div class="jt-topbar__actions">
-			<button type="button" class="jt-icon-button" data-action="open-today" title="Go to today" aria-label="Go to today">
-				<i class="fas fa-calendar-day" aria-hidden="true"></i>
+			<span class="jt-pick">
+				<button type="button" class="jt-icon-button" data-action="pick-date" title="Open another day" aria-label="Open another day">
+					<i class="fas fa-calendar-alt" aria-hidden="true"></i>
+				</button>
+				<input type="date" class="jt-pick__input" aria-hidden="true" tabindex="-1">
+			</span>
+			<button type="button" class="jt-icon-button" data-action="open-today" title="Open today's entry" aria-label="Open today's entry">
+				<i class="fas fa-pen" aria-hidden="true"></i>
 			</button>
 		</div>
 	</header>
@@ -242,7 +254,7 @@ export const buildPanelHtml = (state: PanelState): string => {
 		: '';
 
 	return `
-		<div class="jt${state.showImages ? '' : ' jt--no-images'}">
+		<div class="jt${state.showImages ? '' : ' jt--no-images'}"${state.fontSize ? ` style="font-size: ${state.fontSize}px"` : ''}>
 			${renderTopBar(`${openingYear}`, state.folderLabel)}
 			<div class="jt-scroll">
 				${renderStatusNotice(state)}

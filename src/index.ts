@@ -18,8 +18,8 @@ const registerCommands = async (panel: JournalPanel) => {
 	await joplin.commands.register({
 		name: COMMAND_OPEN_TODAY,
 		label: 'Open today\'s journal entry',
-		iconName: 'fas fa-calendar-day',
-		execute: () => panel.openToday(),
+		iconName: 'fas fa-pen',
+		execute: () => panel.openEntry(),
 	});
 
 	// The panel keeps itself current, so this has no toolbar button - it is here

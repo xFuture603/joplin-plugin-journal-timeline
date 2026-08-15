@@ -2,9 +2,9 @@ import joplin from 'api';
 import { ViewHandle } from 'api/types';
 import { findOrCreateFolderByPath, findOrCreateJournalNote, getFolderPaths, listJournalEntries } from './journal';
 import { buildErrorHtml, buildPanelHtml, FolderStatus } from './panelHtml';
-import { CREATE_NEW_FOLDER, getSettings, refreshFolderOptions, setFolderId } from './settings';
+import { CREATE_NEW_FOLDER, getEditorFontSize, getSettings, refreshFolderOptions, setFolderId } from './settings';
 import { renderEntryBodies } from './render';
-import { todayTitle } from './dates';
+import { parseJournalTitle, todayTitle } from './dates';
 
 const PANEL_ID = 'journalTimelinePanel';
 
@@ -19,9 +19,11 @@ const REFRESH_DEBOUNCE_MS = 400;
 const DAY_WATCH_INTERVAL_MS = 60 * 1000;
 
 interface PanelMessage {
-	type: 'refresh' | 'openToday' | 'openNote' | 'openLink';
+	type: 'refresh' | 'openEntry' | 'openNote' | 'openLink';
 	noteId?: string;
 	url?: string;
+	/** Journal title for openEntry, or absent for today. */
+	title?: string;
 }
 
 interface ResolvedFolder {
@@ -168,7 +170,17 @@ export class JournalPanel {
 		}, REFRESH_DEBOUNCE_MS);
 	}
 
-	public async openToday(): Promise<void> {
+	/**
+	 * Opens the entry for `title`, writing a new note when that day has none.
+	 * Defaults to today, which is what the toolbar button and the command ask
+	 * for; the date picker names any other day, so an entry missed last week can
+	 * be filled in without hand-titling a note.
+	 */
+	public async openEntry(title: string = todayTitle()): Promise<void> {
+		// The title crosses the webview boundary, so it is checked rather than
+		// trusted - it ends up as a note title, and "2026-02-31" is not a day.
+		if (!parseJournalTitle(title)) return;
+
 		// The panel already renders from resolveFolder, and it answers exactly what
 		// is needed here: an id when the notebook exists, otherwise the name to
 		// create it under. Asking it again keeps the two from disagreeing about
@@ -184,7 +196,7 @@ export class JournalPanel {
 			await refreshFolderOptions();
 		}
 
-		const noteId = await findOrCreateJournalNote(folderId, todayTitle());
+		const noteId = await findOrCreateJournalNote(folderId, title.trim());
 		await joplin.commands.execute('openNote', noteId);
 		await this.render();
 	}
@@ -241,6 +253,7 @@ export class JournalPanel {
 				truncated: total > entries.length,
 				showImages,
 				onThisDay: past,
+				fontSize: await getEditorFontSize(),
 				selectedNoteIds: this.selectionSeen ? await joplin.workspace.selectedNoteIds() : [],
 			}));
 
@@ -259,8 +272,9 @@ export class JournalPanel {
 		try {
 			if (message.type === 'refresh') {
 				await this.refresh();
-			} else if (message.type === 'openToday') {
-				await this.openToday();
+			} else if (message.type === 'openEntry') {
+				// Undefined for the today button, which is what openEntry defaults to.
+				await this.openEntry(message.title);
 			} else if (message.type === 'openNote' && message.noteId) {
 				await joplin.commands.execute('openNote', message.noteId);
 			} else if (message.type === 'openLink' && message.url) {

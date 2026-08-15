@@ -77,14 +77,32 @@
 				send({ type: 'refresh' });
 				break;
 			case 'open-today':
-				send({ type: 'openToday' });
+				send({ type: 'openEntry' });
 				break;
+			case 'pick-date': {
+				// A date input only opens its calendar from its own indicator, which
+				// is not what was clicked - showPicker() is the way to raise it from
+				// a button, and it needs the user activation this handler runs under.
+				const picker = target.parentElement && target.parentElement.querySelector('.jt-pick__input');
+				if (picker && picker.showPicker) picker.showPicker();
+				break;
+			}
 			case 'open-note':
 				// Reading an entry means selecting text in it, which must not be
 				// mistaken for a click on the entry.
 				if (isSelectingText() || !opensEntry(event.target)) return;
 				send({ type: 'openNote', noteId: target.getAttribute('data-note-id') });
 				break;
+		}
+	});
+
+	// The picker's value is already YYYY-MM-DD, which is exactly a journal title -
+	// nothing to parse or format. Bound by class rather than data-action so the
+	// checkboxes inside a rendered entry cannot reach this.
+	document.addEventListener('change', (event) => {
+		const input = event.target;
+		if (input instanceof HTMLInputElement && input.classList.contains('jt-pick__input') && input.value) {
+			send({ type: 'openEntry', title: input.value });
 		}
 	});
 
